@@ -6,14 +6,15 @@ def extract_products_csv(path):
 
 
 def extract_eur_usd_rates_csv(path):
-    return pd.read_csv(
+    df = pd.read_csv(
         path,
         index_col="date",
         header=None,
         names=["date", "rate"],
         skiprows=3,
         parse_dates=["date"],
-    ).sort_values(by=["date"], ascending=True)
+    )
+    return  df.sort_values(by=["date"], ascending=True)
 
 
 def extract_transactions_csv(path):
@@ -21,7 +22,7 @@ def extract_transactions_csv(path):
         path, parse_dates=["timestamp"], usecols=["timestamp", "product_id", "amount"]
     ).sort_values(by=["timestamp"], ascending=True)
     df.dropna(inplace=True)
-    df['timestamp'] = df['timestamp'].dt.normalize()
+    df["timestamp"] = df["timestamp"].dt.normalize()
     return df
 
 
