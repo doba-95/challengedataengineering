@@ -24,7 +24,10 @@ def calculate_profit(df):
     return df
 
 
-def print_best_worst_performing_product(df):
+def print_best_worst_performing_product(parquet_files):
+    parquet_path = "./csv_files/transactions/"
+    df = pd.concat([pd.read_parquet(parquet_path + filename) for filename in parquet_files], ignore_index=True)
+
     columns_of_interest = [
         "product_id",
         "product_name",

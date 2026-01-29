@@ -1,5 +1,7 @@
 import os
+import random
 
+import uuid
 from pandas import DataFrame
 
 from src.challenge.common.etl_job import ETLJob
@@ -17,11 +19,11 @@ from src.challenge.profit.data.data_transformer import (
 
 
 class ProfitEtl(ETLJob):
-    def __init__(self):
-        self.transactions = os.listdir("./csv_files/transactions")
+    def __init__(self, transaction):
+        self.transaction = transaction
         self.products_path = "./csv_files/products3.csv"
         self.eur_usd_rates_path = "./csv_files/eur_usd_last10y.csv"
-        self.transactions_parquet_path = "./csv_files/transactions/transactions_parquet.parquet"
+        self.transactions_parquet_path = "./csv_files/transactions/"
 
     def extract(self) -> tuple[DataFrame, DataFrame, DataFrame]:
         products = extract_products_csv(self.products_path)
@@ -29,11 +31,13 @@ class ProfitEtl(ETLJob):
         eur_usd_rates = extract_eur_usd_rates_csv(self.eur_usd_rates_path)
 
         transaction = extract_transactions_csv(
-            os.path.join("./csv_files/transactions", self.transactions[0])
+            os.path.join("./csv_files/transactions", self.transaction)
         )
         return products, eur_usd_rates, transaction
 
-    def transform(self, products: DataFrame, transaction: DataFrame, eur_usd_rates: DataFrame) -> DataFrame:
+    def transform(
+        self, products: DataFrame, transaction: DataFrame, eur_usd_rates: DataFrame
+    ) -> DataFrame:
         transaction_with_conversion_rate = transform_eur_to_usd(
             transaction, eur_usd_rates
         )
@@ -42,14 +46,23 @@ class ProfitEtl(ETLJob):
             transaction_with_conversion_rate, products
         )
 
-        return calculate_profit(
-            merged_transactions_with_products
-        )
+        return calculate_profit(merged_transactions_with_products)
 
     def load(self, transactions_with_product_profit: DataFrame):
-        write_to_parquet(transactions_with_product_profit, self.transactions_parquet_path)
+        random_uuid = uuid.uuid4().hex
+        write_to_parquet(
+            transactions_with_product_profit,
+            (
+                self.transactions_parquet_path
+                + "transactions_parquet_"
+                + random_uuid
+                + ".parquet"
+            ),
+        )
 
     def run(self):
         products, eur_usd_rates, transaction = self.extract()
-        transactions_with_product_profit = self.transform(products, transaction, eur_usd_rates)
+        transactions_with_product_profit = self.transform(
+            products, transaction, eur_usd_rates
+        )
         self.load(transactions_with_product_profit)

@@ -27,6 +27,7 @@ def extract_transactions_csv(path):
 
 
 def extract_parquet(path):
-    df = pd.read_parquet(path)
+    parquet_path= "./csv_files/transactions/"
+    df = pd.read_parquet((parquet_path + path))
     return df
 
