@@ -53,6 +53,7 @@ class ProfitEtl(ETLJob):
             transactions_with_product_profit,
             (
                 self.transactions_parquet_path
+                + "parquet_transactions/"
                 + "transactions_parquet_"
                 + self.parquet_id
                 + ".parquet"
