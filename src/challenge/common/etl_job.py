@@ -17,5 +17,5 @@ class ETLJob(ABC):
         pass
 
     @abstractmethod
-    def run(self) -> None:
+    def run(self):
         pass

@@ -14,20 +14,22 @@ def extract_eur_usd_rates_csv(path):
         skiprows=3,
         parse_dates=["date"],
     )
-    return  df.sort_values(by=["date"], ascending=True)
+    return df.sort_values(by=["date"], ascending=True)
 
 
 def extract_transactions_csv(path):
-    df =  pd.read_csv(
-        path, parse_dates=["timestamp"], usecols=["timestamp", "product_id", "amount"]
-    ).sort_values(by=["timestamp"], ascending=True)
-    df.dropna(inplace=True)
-    df["timestamp"] = df["timestamp"].dt.normalize()
+    df = pd.read_csv(
+        path,
+        parse_dates=["timestamp"],
+        usecols=["timestamp", "product_id", "amount"],
+        dtype={"product_id": "float32", "amount": "float32"},
+        chunksize=1000000,
+    )
     return df
 
 
 def extract_parquet(path):
-    parquet_path= "./csv_files/transactions/"
+    parquet_path = "./csv_files/transactions/"
     df = pd.read_parquet((parquet_path + path))
     return df
 

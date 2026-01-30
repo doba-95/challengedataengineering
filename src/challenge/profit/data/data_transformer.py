@@ -2,6 +2,10 @@ import pandas as pd
 
 
 def transform_eur_to_usd(df_transaction, df_eur_usd):
+    df_transaction.sort_values(by=["timestamp"], ascending=True, inplace=True)
+    df_transaction.dropna(inplace=True)
+    df_transaction["timestamp"] = df_transaction["timestamp"].dt.normalize()
+
     df_merged = pd.merge_asof(
         df_transaction,
         df_eur_usd,
@@ -11,7 +15,7 @@ def transform_eur_to_usd(df_transaction, df_eur_usd):
         direction="backward",
     )
     df_merged["amount_usd"] = df_merged["amount"] * df_merged["rate"]
-    df_merged.drop(["amount"], axis=1, inplace=True)
+    df_merged.drop(["amount","timestamp"], axis=1, inplace=True)
     return df_merged
 
 

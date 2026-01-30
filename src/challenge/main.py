@@ -1,3 +1,4 @@
+import logging
 import multiprocessing
 import os
 import time
@@ -16,12 +17,18 @@ transactions = [f for f in os.listdir(TRANSACTIONS_DIR) if f.endswith('.csv')]
 
 def etl_runner(transaction: str):
     profit_etl = ProfitEtl(transaction)
-    profit_etl.run()
+    processed_chunks = profit_etl.run()
+    while True:
+        try:
+            next(processed_chunks)
+        except StopIteration:
+            break
 
 
 
 
 if __name__ == "__main__":
+    logging.basicConfig(filename="challenge.log", level=logging.INFO)
     ## Run etl pipeline with multiple cores
     with multiprocessing.Pool(6) as pool:
         pool.map(etl_runner, transactions)
@@ -29,6 +36,7 @@ if __name__ == "__main__":
     ## Print best/worst performing products
     transactions_parquets = [f for f in os.listdir(TRANSACTIONS_DIR) if f.endswith('.parquet')]
     #with multiprocessing.Pool(6) as pool:
+
     print_best_worst_performing_product(transactions_parquets)
 
 
