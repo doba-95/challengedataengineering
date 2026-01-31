@@ -2,7 +2,11 @@ import pandas as pd
 
 
 def extract_products_csv(path):
-    return pd.read_csv(path, usecols=["product_id", "product_name", "production_costs"])
+    return pd.read_csv(
+        path,
+        usecols=["product_id", "product_name", "production_costs"],
+        dtype={"product_id": "float32", "production_costs": "float32"},
+    )
 
 
 def extract_eur_usd_rates_csv(path):
@@ -25,11 +29,5 @@ def extract_transactions_csv(path):
         dtype={"product_id": "float32", "amount": "float32"},
         chunksize=1000000,
     )
-    return df
-
-
-def extract_parquet(path):
-    parquet_path = "./csv_files/transactions/"
-    df = pd.read_parquet((parquet_path + path))
     return df
 

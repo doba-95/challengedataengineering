@@ -1,3 +1,4 @@
 notebooks
 .venv
 modules
+src/challenge/csv_files/

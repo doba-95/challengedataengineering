@@ -1,5 +1,4 @@
 import pandas as pd
-import pyarrow as pa
 import pyarrow.dataset as ds
 
 
@@ -16,7 +15,7 @@ def transform_eur_to_usd(df_transaction, df_eur_usd):
         allow_exact_matches=True,
         direction="backward",
     )
-    df_merged["amount_usd"] = df_merged["amount"] * df_merged["rate"]
+    df_merged["amount_usd"] = (df_merged["amount"] * df_merged["rate"]).astype("float32")
     df_merged.drop(["amount", "timestamp"], axis=1, inplace=True)
     return df_merged
 
@@ -26,7 +25,9 @@ def merge_transactions_with_conversion_products(df_transaction, df_products):
 
 
 def calculate_profit(df):
-    df["profit"] = df["amount_usd"] - df["production_costs"]
+    df["profit"] = (df["amount_usd"] - df["production_costs"]).astype("float32")
+    df.drop(["rate"], axis=1, inplace=True)
+
     return df
 
 
@@ -45,7 +46,7 @@ def batch_reader_parquet_files(parquet_path):
 
 
 def aggregation_of_columns(df):
-    return_df = df.groupby(by="product_id").agg(
+    return_df = df.groupby(by="product_id", as_index=False).agg(
         {
             "product_id": "first",
             "amount_usd": "sum",
