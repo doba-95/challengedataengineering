@@ -1,4 +1,4 @@
 notebooks
 .venv
 modules
-src/challenge/csv_files/
+src/challenge/csv_files/transactions

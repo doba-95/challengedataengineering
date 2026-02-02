@@ -1,3 +1,4 @@
+import logging
 import multiprocessing
 import os
 import time
@@ -23,7 +24,6 @@ EUR_USD_CSV = BASE_DIR / "csv_files/eur_usd_last10y.csv"
 PARQUET_DIR = BASE_DIR / "csv_files/transactions/parquet_transactions"
 
 transactions = [f for f in os.listdir(TRANSACTIONS_DIR) if f.endswith(".csv")]
-transactions = transactions[:2]
 
 
 def etl_runner(transaction: str):
@@ -42,11 +42,12 @@ def etl_runner(transaction: str):
 
 
 if __name__ == "__main__":
+    logging.basicConfig(filename="main.log", level=logging.INFO)
     ## Run etl pipeline with multiple cores
     with multiprocessing.Pool(6) as pool:
         pool.map(etl_runner, transactions)
 
-    print(time.time() - start)
+    logging.info("ETL Pipeline ran in: %s", time.time() - start)
 
     batch_df_generator = batch_reader_parquet_files(PARQUET_DIR)
 
@@ -61,4 +62,4 @@ if __name__ == "__main__":
 
 
 remove_parquet_files(PARQUET_DIR)
-print(time.time() - start)
+logging.info("Pipeline done in: %s", time.time() - start)
