@@ -11,3 +11,6 @@ def get_parquet_schema():
         ]
     )
     return schema
+
+def worker(batch_chunk):
+    return batch_chunk

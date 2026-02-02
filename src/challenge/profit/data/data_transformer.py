@@ -40,9 +40,9 @@ def batch_reader_parquet_files(parquet_path):
         "production_costs",
         "profit",
     ]
-    for batch in datasets.to_batches(columns=columns_of_interest, batch_size=1000000, use_threads=True):
+    for batch in datasets.to_batches(columns=columns_of_interest, batch_size=64000, use_threads=True):
         batch_df = batch.to_pandas()
-        yield aggregation_of_columns(batch_df)
+        yield batch_df
 
 
 def aggregation_of_columns(df):

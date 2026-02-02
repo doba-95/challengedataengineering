@@ -27,7 +27,7 @@ def extract_transactions_csv(path):
         parse_dates=["timestamp"],
         usecols=["timestamp", "product_id", "amount"],
         dtype={"product_id": "float32", "amount": "float32"},
-        chunksize=1000000,
+        chunksize=64000,
     )
     return df
 

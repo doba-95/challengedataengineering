@@ -1,11 +1,8 @@
-import logging
 import os
 
-import uuid
 from typing import Iterator
 
 from pandas import DataFrame
-import pyarrow.parquet as pq
 import pyarrow as pa
 from src.challenge.common.etl_job import ETLJob
 from src.challenge.common.utils import get_parquet_schema
@@ -14,7 +11,6 @@ from src.challenge.profit.data.data_extracter import (
     extract_eur_usd_rates_csv,
     extract_products_csv,
 )
-from src.challenge.profit.data.data_loader import write_to_parquet
 from src.challenge.profit.data.data_transformer import (
     transform_eur_to_usd,
     merge_transactions_with_conversion_products,
