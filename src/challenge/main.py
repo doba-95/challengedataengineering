@@ -9,7 +9,7 @@ import pyarrow.parquet as pq
 import uuid
 
 from src.challenge.common.generated_file_cleaner import remove_parquet_files
-from src.challenge.common.utils import get_parquet_schema, worker
+from src.challenge.common.utils import get_parquet_schema
 from src.challenge.profit.data.data_transformer import (
     batch_reader_parquet_files,
     aggregation_of_columns,

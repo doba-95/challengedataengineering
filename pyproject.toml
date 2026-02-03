@@ -1,0 +1,23 @@
+[project]
+name = "challengedataengineering"
+description = "hopefully the fastest pipeline"
+version = "0.1.0"
+requires-python= ">=3.11"
+authors = [
+    { name = "Dominic Bachmann ", email = "bachmanndominic@web.de" }
+]
+dependencies = [
+    "multiprocess==0.70.19",
+    "pyarrow==23.0.0",
+    "pandas==3.0.0",
+
+
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+
+[build-system]
+requires = ["setuptools >= 80.3.1.3", "wheel"]
+build-backend = "setuptools.build_meta"
