@@ -1,0 +1,81 @@
+ETL Pipeline that processes transaction data following the instructions below:
+
+To run the etl pipeline:
+
+0. Create folder structure
+    csv_files
+    |_transactions
+    |__parquet_transactions
+    |_eur_usd_last10y.csv
+    |_products3.csv
+1. Place transaction csvs in transaction
+2. Hit run and enjoy the magic (or nut if you're getting an out of memory leak)
+
+
+Die Aufgabe:
+Für einen großen Onlinehandel sollen wir mittels Python eine Pipeline schreiben, die möglichst performant Verkaufsdaten verarbeitet.
+Ziel ist es ein Ipython Skript (Jupyter Notebook) zu erstellen, das eine unbekannte Anzahl von csv Files von unbekannter Größe nach folgender Logik transformiert und analysiert:
+
+Alle Zeilen, die Null values enthalten (in egal welcher Spalte) löschen
+
+Joinen der zusammengehörigen transaction und product Daten. Transactions ohne matching Product sollen nicht weiter berücksichtigt werden.
+
+Die amountSpalte gibt derzeit den Betrag in EUR an. Wir müssen auf USD umrechnen. In der Transactions Tabelle nutzen wir dafür den Wechselkurs am Tag der Transaktion. Dieser kann der .csv Datei eur_usd_last10yrs.csv entnommen werden.
+Wochenenden und Feiertage kommen nicht in dem EUR/USD Datensatz vor. Es ist also Teil der Aufgabe damit umzugehen. In solchen Fällen wollen wir den letzten bekannten Wechselkurs nehmen. Also wenn z.B. eine Transaction an einem Sonntag war wird man hierfür wahrscheinlich keinen Wechselkurs im eur/usd datensatz finden. Wir nehmen also den letzten bekannten Kurs (in dem Fall vermutlich der Freitag)
+Die Product Tabelle wurde bereits in USD umgerechnet und muss dementsprechend nicht bearbeitet werden.
+
+Die Spalte amount gibt an, für wie viel Geld das Produkt gekauft wurde. Die Spalte production_costs gibt die Kosten für den Onlinehandel an. Wir wollen daraus eine weitere net_profitSpalte berechnen.
+
+Das Ergebnis soll als sales_postprocessed_{id}.parquet abgespeichert werden. Das Ergebnis sind also so viele Parquet files, wie es es Transaction Input Tabellen gibt.
+
+Über alle input Dateien hinweg soll anschließend das profitabelste und unprofitabelste Produkt bestimmt werden. Das Ergebnis soll ein Dataframe mit 2 Zeilen sein der Produkt_id, Produkt_name, aggregierte Kosten, aggregierte Sales und aggregierten Netprofit zeigt (-> 5 Spalten). Dieser Dataframe muss nicht gespeichert werden. Ein print statement genügt.
+
+Cleanup: Falls Zwischenergebnisse etc in temporären Files gespeichert werden, müssen diese auch wieder gelöscht werden. Außer den Ziel Dateien dürfen nach Abschluss des Skripts keine neuen Dateien existieren.
+
+
+Bezüglich unserer Input Daten wissen wir folgendes:
+
+Es gibt zwischen 1 und 20 Transaction Dateien die es insgesamt zu bearbeiten gilt. Sie sind abgespeichert unter: /transaction_data/{id}.csv
+
+Da in unserem Onlinehandel alle Waren versteigert werden, variiert der bezahlte Betrag für dasselbe Produkt.
+
+Alle Verfügbaren Produkte befinden sich in products.csv. Hiervon gibt es nur eine Tabelle.
+
+Zum Entwickeln habe ich euch einen Testdatensatz zur Verfügung gestellt: products.csv und transactions.csv
+
+Die Transaction Dateien können zwischen 100MB und 100GB groß sein
+
+Bei products.csv handelt es sich bereits um die Originaldatei. Die Tabelle ist also von überschaubarer Größe und hat keine Null values.
+
+Nur die Transactions Daten können Null values enthalten.
+
+Hier sind die Daten:
+
+eur_usd_last10y.csv transactions.csv products3.csv
+Nochmal zusammengefasst: products.csv und eur_usd_last10y.csv sind die originalen Tabellen und existieren nur ein mal.
+Transactions.csv ist ein Testdatensatz für euch zum entwickeln. Die Daten in der echten Umgebung sind andere. Außerdem hat die echte Umgebung mehr als nur einen Transactions.csv File. Euer Code muss alle Dateien so wie oben beschrieben verarbeiten.
+
+Die offizielle Test- bzw. Benchmarking Umgebung:
+
+kein Zugang zu Polars
+
+VM mit 10GB RAM & 6 CPU Kernen
+
+
+
+Spielregeln:
+KEINE KI HILFE! Nicht zur Codegenerierung und auch sonst nicht!
+
+Keine Ideen und keinen Code von anderen Notebooks abschauen
+
+Die oberen beiden Regeln gelten nur für eure erste Abgabe (für maximalen Lerneffekt). Wenn ihr danach weitere Versionen abgeben wollt um euch zu verbessern, könnt ihr das mit KI Hilfe und Abkupfern von anderen Notebooks tun.
+
+Wenn ihr fertig seid, schickt ihr mir euren .ibpynb File zu. Ich lasse den Code auf der offiziellen Testumgebung mit den offiziellen Testdaten laufen. Damit ihr euren Code nicht auf die konkreten Daten optimieren könnt, halte ich es geheim wie viele Transaction .csv Files es gibt und wie groß sie sind. Dadurch will ich euch zu einer generalisierten Lösung zwingen, die den wechselnden Lasten - wie sie in Realität auftreten würden - gerecht wird.
+Wenn der Code kein oder ein falsches Ergebnis liefert, gebe ich euch das Feedback und ihr könnt den Fehler verbessern. Bei erfolgreichem Ergebnis lade ich euren Code hoch, und ihr bekommt einen Eintrag in der ewigen Tabelle oben. Ziel ist es, eine möglichst performante Lösung zu finden. Um das Timen des Skripts kümmere ich mich. Hierfür müsst ihr also keinen Code schreiben.
+
+So viel verrate ich: “Die Benchmark” besteht aus mehreren Benchmarks mit unterschiedlicher Anzahl und Größe an Daten. Am Ende summiere ich die Dauern der “Teil-Benchmarks” auf.
+
+
+
+Tipp:
+Parallelismus in Jupyter Notebooks kann in Windows & MacOS Umgebungen zu Exceptions führen. Ich empfehle die Entwicklung in einer Linux Umgebung (z.B. via Jupyter docker image) oder ihr entwickelt in einem .py file und übertragt die Ergebnisse am Ende in ein Jupyter Notebook. In der zweiten Variante muss man zusätzlich darauf achten dass der Code in einem “if name==main” block ausgeführt wird.
