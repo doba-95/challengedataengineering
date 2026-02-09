@@ -54,11 +54,11 @@ class ProfitEtl(ETLJob):
         return calculate_profit(merged_transactions_with_products)
 
     def load(self, transactions_with_product_profit: DataFrame):
-        batch = pa.record_batch(
-            transactions_with_product_profit, schema=get_parquet_schema()
+        self.writer.write_batch(
+            pa.record_batch(
+                transactions_with_product_profit, schema=get_parquet_schema()
+            )
         )
-
-        self.writer.write_batch(batch)
 
     def run(self) -> Iterator:
         products, eur_usd_rates = self.extract()
@@ -67,7 +67,6 @@ class ProfitEtl(ETLJob):
             os.path.join(self.transaction_path, self.transaction)
         ) as reader:
             for transaction_chunk in reader:
-                transaction_chunk_df = self.transform(
-                    products, transaction_chunk, eur_usd_rates
+                yield self.load(
+                    self.transform(products, transaction_chunk, eur_usd_rates)
                 )
-                yield self.load(transaction_chunk_df)

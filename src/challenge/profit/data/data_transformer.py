@@ -40,13 +40,12 @@ def batch_reader_parquet_files(parquet_path):
         "production_costs",
         "profit",
     ]
-    for batch in datasets.to_batches(columns=columns_of_interest, batch_size=64000, use_threads=True):
-        batch_df = batch.to_pandas()
-        yield batch_df
+    for batch in datasets.to_batches(columns=columns_of_interest, batch_size=1000000, use_threads=False):
+        yield batch.to_pandas()
 
 
 def aggregation_of_columns(df):
-    return_df = df.groupby(by="product_id", as_index=False).agg(
+    return df.groupby(by="product_id", as_index=False).agg(
         {
             "product_id": "first",
             "amount_usd": "sum",
@@ -55,4 +54,3 @@ def aggregation_of_columns(df):
             "product_name": "first",
         }
     )
-    return return_df
